@@ -7,6 +7,6 @@ BASE_DESCRIPTOR="tr($XPUB/0/$INDEX)"
 
 DESCRIPTOR_WITH_CHECKSUM=$(bitcoin-cli getdescriptorinfo "$BASE_DESCRIPTOR" | jq -r '.descriptor')
 
-DERIVED_ADDRESSES=$(bitcoin-cli deriveaddresses $DESCRIPTOR_WITH_CHECKSUM)
+DERIVED_ADDRESSES=$(bitcoin-cli deriveaddresses "$DESCRIPTOR_WITH_CHECKSUM")
 
 echo $DERIVED_ADDRESSES
