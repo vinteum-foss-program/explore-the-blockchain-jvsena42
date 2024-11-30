@@ -2,22 +2,18 @@
 #   `37d966a263350fe747f1c606b159987545844a493dd38d84b070027a895c4517`
 
 TXID="37d966a263350fe747f1c606b159987545844a493dd38d84b070027a895c4517"
-
 RAW_TX=$(bitcoin-cli getrawtransaction "$TXID")
-
 DECODED_TX=$(bitcoin-cli decoderawtransaction "$RAW_TX")
 
-# Extract public keys from the inputs
 PUBLIC_KEYS=()
 for vin in $(echo "$DECODED_TX" | jq -c '.vin[]'); do
   input_txid=$(echo "$vin" | jq -r '.txid')
   input_vout=$(echo "$vin" | jq -r '.vout')
   
   prev_tx=$(bitcoin-cli getrawtransaction "$input_txid" true)
-  script_pubkey=$(echo "$prev_tx" | jq -r ".vout[$input_vout].scriptPubKey.asm")
-
-  # Extract the public key from the scriptPubKey (assumes P2PKH or P2PK)
-  pubkey=$(echo "$script_pubkey" | awk '{print $2}')
+  
+  pubkey=$(echo "$prev_tx" | jq -r '.vin[0].txinwitness[1]')
+  
   PUBLIC_KEYS+=("$pubkey")
 done
 
@@ -26,7 +22,9 @@ if [ "${#PUBLIC_KEYS[@]}" -ne 4 ]; then
   exit 1
 fi
 
+# Convert public keys to JSON array and create multisig
 MULTISIG=$(bitcoin-cli createmultisig 1 "$(printf '%s\n' "${PUBLIC_KEYS[@]}" | jq -R . | jq -s .)")
 
 # Output the P2SH address
-echo "$(echo "$MULTISIG" | jq -r '.address')"
+echo "P2SH Address: $(echo "$MULTISIG" | jq -r '.address')"
+#echo "Redeem Script: $(echo "$MULTISIG" | jq -r '.redeemScript')"
