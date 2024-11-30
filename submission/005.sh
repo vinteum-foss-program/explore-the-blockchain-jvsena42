@@ -22,9 +22,8 @@ if [ "${#PUBLIC_KEYS[@]}" -ne 4 ]; then
   exit 1
 fi
 
-# Convert public keys to JSON array and create multisig
-MULTISIG=$(bitcoin-cli createmultisig 1 "$(printf '%s\n' "${PUBLIC_KEYS[@]}" | jq -R . | jq -s .)")
 
-# Output the P2SH address
-echo "P2SH Address: $(echo "$MULTISIG" | jq -r '.address')"
+MULTISIG_ADDRESS=$(bitcoin-cli createmultisig 1 "[\"${PUBLIC_KEYS[0]}\",\"${PUBLIC_KEYS[1]}\",\"${PUBLIC_KEYS[2]}\",\"${PUBLIC_KEYS[3]}\"]")
+echo "$MULTISIG_ADDRESS" | jq -r '.address'
+
 #echo "Redeem Script: $(echo "$MULTISIG" | jq -r '.redeemScript')"
