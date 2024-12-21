@@ -16,13 +16,14 @@ TRANSACTION_LIST=$(bitcoin-cli getblock $BLOCK_HASH_2 | jq -r '.tx[]')
 
 #find the transaction that spends the coinbase transaction
 for TX_ID in $TRANSACTION_LIST; do
-	RAW_TX=$(bitcoin-cli getrawtransaction $TX_ID 1)
-	if "$RAW_TX" | jq -r '.vin[].txid' | grep -q "$COINBASE_TX_ID"; then #get the outputs tx id and check if it matches with COINBASE_TX_ID
-    	echo "$TX_ID"
+  RAW_TX=$(bitcoin-cli getrawtransaction $TX_ID 1)
+  
+  #get the inputs tx id and check if it matches with COINBASE_TX_ID
+  if echo "$RAW_TX" | jq -r '.vin[].txid' | grep -q "$COINBASE_TX_ID"; then
+    echo "$TX_ID"
     exit 0
   fi
 done
-
 
 # If no transaction is found
 echo "Couldn't find in block $BLOCK_HEIGHT_2 a transaction that spends the coinbase output of block $BLOCK_HEIGHT_1."
