@@ -7,7 +7,7 @@ TXID="37d966a263350fe747f1c606b159987545844a493dd38d84b070027a895c4517"
 RAW_TX=$(bitcoin-cli getrawtransaction "$TXID")
 
 # Decode the raw transaction
-DECODE_TX=(bitcoin-cli decoderawtransaction "$RAW_TX")
+DECODED_TX=$(bitcoin-cli decoderawtransaction "$RAW_TX")
 
 # Extract public keys from txinwitness
 PUBKEY1=$(echo "$DECODED_TX" | jq -r '.vin[0].txinwitness[1]')
